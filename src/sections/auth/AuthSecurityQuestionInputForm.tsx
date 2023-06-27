@@ -24,7 +24,7 @@ type FormValuesProps = {
   code6: string;
 };
 
-export default function AuthVerifyCodeForm() {
+export default function AuthSecurityQuestionInputForm() {
   const { push } = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -71,12 +71,16 @@ export default function AuthVerifyCodeForm() {
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={3} sx={{ alignItems: 'center' }}>
-        <Typography variant="body2">
-          A text message with a 6 digit verification code was just sent to +91 977...777
-        </Typography>
+      <Stack spacing={3}>
+        <Typography variant="body2">Answer your security question</Typography>
 
-        <RHFTextField name="Code" variant="outlined" label="Enter the code" type="number" />
+        <RHFTextField
+          name="highSchoolName"
+          variant="outlined"
+          label="High School Name"
+          type="text"
+          helperText="Enter your answer"
+        />
       </Stack>
       <Stack
         direction="row"
@@ -95,7 +99,7 @@ export default function AuthVerifyCodeForm() {
             padding: '4px',
           }}
         >
-          I don&#39;t have a phone
+          Try another way
         </Link>
         <LoadingButton
           color="inherit"

@@ -1,24 +1,22 @@
 // next
+import Image from 'next/image';
 // @mui
-import { Tooltip, Stack, Typography, Box } from '@mui/material';
-import { useMemo, useState } from 'react';
-import StepContext from 'src/context/stepContext';
-
+import { Tooltip, Stack, Typography, Box, Avatar, Chip } from '@mui/material';
 // auth
 import { useAuthContext } from '../../auth/useAuthContext';
 // layouts
 import LoginLayout from '../../layouts/login';
-
 // routes
 //
-import AuthLoginForm from './AuthLoginForm';
 import AuthPasswordInputForm from './AuthPasswordInputForm';
+import AuthVerifyCodeForm from './AuthVerifyCodeForm';
+import AuthSecurityQuestionInputForm from './AuthSecurityQuestionInputForm';
+import AuthConfirmPasswordInputForm from './AuthConfirmPasswordInputForm';
+
 // ----------------------------------------------------------------------
 
-export default function Login() {
+export default function RecoverAccount() {
   const { method } = useAuthContext();
-  const [step, setStep] = useState(1);
-  const value = useMemo(() => ({ step, setStep }), [step]);
 
   return (
     <LoginLayout>
@@ -32,17 +30,22 @@ export default function Login() {
           />
         </Tooltip>
         <Typography variant="h3" align="center">
-          Sign in
+          Account Recovery
         </Typography>
 
-        <Stack direction="row">
-          <Typography variant="body1">Use your Google Account</Typography>
+        <Stack direction="column" spacing={2} sx={{ alignItems: 'center' }}>
+          <Typography variant="body1">
+            This helps show that this account really belongs to you
+          </Typography>
+          <Chip
+            avatar={<Avatar>M</Avatar>}
+            label="email@domain.com"
+            size="medium"
+            sx={{ objectFit: 'fill' }}
+          />
         </Stack>
       </Stack>
-      <StepContext.Provider value={value}>
-        {step === 1 && <AuthLoginForm />}
-        {step === 2 && <AuthPasswordInputForm />}
-      </StepContext.Provider>
+      <AuthConfirmPasswordInputForm />
     </LoginLayout>
   );
 }

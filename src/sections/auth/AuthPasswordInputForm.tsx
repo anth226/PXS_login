@@ -2,34 +2,34 @@ import { useContext, useState } from 'react';
 import * as Yup from 'yup';
 // next
 import NextLink from 'next/link';
-import { signIn, getSession } from 'next-auth/react';
-
+import router from 'next/router';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { Link, Stack, Alert } from '@mui/material';
+import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useRouter } from 'next/router';
 import StepContext from 'src/context/stepContext';
 import { LoginAuthContext } from 'src/context/LoginAuthContext';
+import { loginUser } from 'src/services/authService';
+
 // routes
 import { PATH_AUTH } from '../../routes/paths';
 // auth
 // components
+import Iconify from '../../components/iconify';
 import FormProvider, { RHFTextField } from '../../components/hook-form';
 
 // ----------------------------------------------------------------------
 
 type FormValuesProps = {
-  userName: string;
+  email: string;
   password: string;
   afterSubmit?: string;
 };
 
-export default function AuthLoginForm() {
+export default function AuthPasswordInputForm() {
   // const { login } = useAuthContext();
-
   const contextValue = useContext(StepContext);
   const emailValue = useContext(LoginAuthContext);
 
@@ -37,34 +37,18 @@ export default function AuthLoginForm() {
     throw new Error('EmailForm must be used within a StepContextProvider');
   }
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { email } = emailValue;
   const { setStep } = contextValue;
-  const { setEmail } = emailValue;
-
-  // const login = async (userName: string, password: string) => {
-  //   console.log('test');
-  //   await signIn('credentials', {
-  //     redirect: false,
-  //     userName,
-  //     password,
-  //   });
-
-  //   const session = await getSession();
-
-  //   if (!session) {
-  //     throw new Error('Login failed!');
-  //   }
-  // };
-
-  // const [showPassword, setShowPassword] = useState(false);
-
   const LoginSchema = Yup.object().shape({
-    userName: Yup.string().required('Username is required'),
-    // password: Yup.string().required('Password is required'),
+    // email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+    password: Yup.string().required('Password is required'),
   });
 
   const defaultValues = {
-    userName: 'jDoe',
-    // password: 'Hello123',
+    // email: 'demo@minimals.cc',
+    password: '',
   };
 
   const methods = useForm<FormValuesProps>({
@@ -79,31 +63,42 @@ export default function AuthLoginForm() {
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = methods;
 
-  const handleNext = (data: FormValuesProps) => {
-    // router.push(`/page-two?email=${email}`);
-    setEmail(data.userName);
-    setStep(2);
+  const onSubmit = async (data: FormValuesProps) => {
+    try {
+      const response = await loginUser(email, data.password);
+
+      if (response.status === 200) {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      console.log(error);
+      // reset();
+      setError('afterSubmit', {
+        ...error,
+        message: error.message || error,
+      });
+    }
   };
 
-  // const onSubmit = async (data: FormValuesProps) => {
-  //   try {
-  //     await login(data.userName, data.password);
-  //   } catch (error) {
-  //     console.log(error);
-  //     reset();
-  //     setError('afterSubmit', {
-  //       ...error,
-  //       message: error.message || error,
-  //     });
-  //   }
-  // };
-
   return (
-    <FormProvider methods={methods} onSubmit={handleSubmit(handleNext)}>
+    <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
-        <RHFTextField name="userName" label="User Name" />
+        <RHFTextField
+          name="password"
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
       </Stack>
 
       <Stack alignItems="flex-start" sx={{ my: 2 }}>
@@ -114,7 +109,7 @@ export default function AuthLoginForm() {
           color="inherit"
           underline="always"
         >
-          Forgot Email?
+          Forgot Password?
         </Link>
       </Stack>
       <Stack
@@ -124,8 +119,11 @@ export default function AuthLoginForm() {
       >
         <Link
           component={NextLink}
-          href={PATH_AUTH.register}
+          href=""
           variant="subtitle2"
+          onClick={() => {
+            setStep(1);
+          }}
           sx={{
             color: 'secondary.main',
             '&:hover': {
@@ -134,7 +132,7 @@ export default function AuthLoginForm() {
             },
           }}
         >
-          Create account
+          Go Back
         </Link>
         <LoadingButton
           color="inherit"
@@ -151,7 +149,7 @@ export default function AuthLoginForm() {
             },
           }}
         >
-          Next
+          Sign in
         </LoadingButton>
       </Stack>
     </FormProvider>

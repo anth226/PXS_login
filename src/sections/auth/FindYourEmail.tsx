@@ -1,24 +1,18 @@
 // next
 // @mui
 import { Tooltip, Stack, Typography, Box } from '@mui/material';
-import { useMemo, useState } from 'react';
-import StepContext from 'src/context/stepContext';
-
 // auth
-import { useAuthContext } from '../../auth/useAuthContext';
 // layouts
+import { useAuthContext } from 'src/auth/useAuthContext';
 import LoginLayout from '../../layouts/login';
-
+import AuthFindYourEmailInputForm from './AuthFindYourEmailInputForm';
 // routes
 //
-import AuthLoginForm from './AuthLoginForm';
-import AuthPasswordInputForm from './AuthPasswordInputForm';
+
 // ----------------------------------------------------------------------
 
-export default function Login() {
+export default function FindYourEmail() {
   const { method } = useAuthContext();
-  const [step, setStep] = useState(1);
-  const value = useMemo(() => ({ step, setStep }), [step]);
 
   return (
     <LoginLayout>
@@ -32,17 +26,14 @@ export default function Login() {
           />
         </Tooltip>
         <Typography variant="h3" align="center">
-          Sign in
+          Find Your Email
         </Typography>
 
         <Stack direction="row">
-          <Typography variant="body1">Use your Google Account</Typography>
+          <Typography variant="body1">Enter your phone number or recovery email</Typography>
         </Stack>
       </Stack>
-      <StepContext.Provider value={value}>
-        {step === 1 && <AuthLoginForm />}
-        {step === 2 && <AuthPasswordInputForm />}
-      </StepContext.Provider>
+      <AuthFindYourEmailInputForm />
     </LoginLayout>
   );
 }
